@@ -25,6 +25,31 @@ def chat_node(state: ChatState):
 
 conn = sqlite3.connect(database='chatbot.db', check_same_thread=False)
 
+conn.execute("""
+    CREATE TABLE IF NOT EXISTS chat_titles (
+        thread_id TEXT PRIMART KEY,
+        title TEXT NOT NULL
+    )
+""")
+
+conn.commit()
+
+def save_chat_title(thread_id, title):
+    conn.execute(
+        """
+    INSERT OR REPLACE INTO chat_titles (thread_id, title)
+    VALUES(?, ?)
+""",
+    (str(thread_id), title)
+    )
+    conn.commit()
+
+def retrieve_all_chat_titles():
+    cursor = conn.execute(
+        "SELECT thread_id, title from chat_titles"
+    )
+    return dict(cursor.fetchall())
+
 # Checkpoint
 checkpointer = SqliteSaver(conn = conn)
 
@@ -35,4 +60,12 @@ graph.add_edge(START, 'chat_node')
 graph.add_edge('chat_node', END)
 
 chatbot = graph.compile(checkpointer=checkpointer)
+
+def retrive_all_threads():
+    threads = set()
+    for checkpoint in checkpointer.list(None):
+        threads.add(checkpoint.config['configurable']['thread_id'])
+    return list(threads)
+
+
 chatbot

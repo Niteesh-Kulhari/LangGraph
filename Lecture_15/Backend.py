@@ -10,8 +10,8 @@ import sqlite3
 
 load_dotenv()
 
-llm = ChatOpenAI()
-title_llm = ChatOpenAI()
+llm = ChatOpenAI(model="gpt-6-luna")
+title_llm = ChatOpenAI(model="gpt-6-luna")
 
 class ChatState(TypedDict):
 
